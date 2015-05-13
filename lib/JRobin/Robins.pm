@@ -17,7 +17,7 @@ sub new {
         rows => $rows,
     };
     my $temp;
-    ($r->{ptr}, $temp, $r->{rest}) = unpack($packstring, $input);
+    ($r->{ptr}, $temp, $r->{leftover}) = unpack($packstring, $input);
 
     @{$r->{values}} = unpack('a8' x $rows, $temp);
 

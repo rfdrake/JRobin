@@ -16,7 +16,7 @@ sub new {
         arcCount => '',
     };
 
-    ($h->{signature},$h->{step},$h->{dsCount},$h->{arcCount},$h->{lastUpdateTime},$h->{rest}) = unpack("a40Q>NNQ>A*", $input);
+    ($h->{signature},$h->{step},$h->{dsCount},$h->{arcCount},$h->{lastUpdateTime},$h->{leftover}) = unpack("a40Q>NNQ>A*", $input);
 
     bless($h,$class);
     return $h;

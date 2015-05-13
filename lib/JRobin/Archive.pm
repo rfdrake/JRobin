@@ -21,10 +21,10 @@ sub new {
     };
 
 
-    ($arc->{consolFun},$arc->{xff},$arc->{steps},$arc->{rows},$arc->{rest}) = unpack($packstring, $input);
-    $arc->{arcState} = JRobin::ArcState->new($arc->{rest});
-    $arc->{robins} = JRobin::Robins->new($arc->{arcState}->{rest}, $arc->{rows});
-    $arc->{rest} = $arc->{robins}->{rest};
+    ($arc->{consolFun},$arc->{xff},$arc->{steps},$arc->{rows},$arc->{leftover}) = unpack($packstring, $input);
+    $arc->{arcState} = JRobin::ArcState->new($arc->{leftover});
+    $arc->{robins} = JRobin::Robins->new($arc->{arcState}->{leftover}, $arc->{rows});
+    $arc->{leftover} = $arc->{robins}->{leftover};
     bless($arc,$class);
     return $arc;
 }

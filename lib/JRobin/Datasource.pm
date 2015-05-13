@@ -21,7 +21,7 @@ sub new {
         nanSeconds => '',
     };
 
-    ($ds->{dsName},$ds->{dsType},$ds->{heartbeat},$ds->{minValue},$ds->{maxValue},$ds->{lastValue},$ds->{accumValue},$ds->{nanSeconds}, $ds->{rest}) = unpack($packstring, $input);
+    ($ds->{dsName},$ds->{dsType},$ds->{heartbeat},$ds->{minValue},$ds->{maxValue},$ds->{lastValue},$ds->{accumValue},$ds->{nanSeconds}, $ds->{leftover}) = unpack($packstring, $input);
 
     bless($ds,$class);
     return $ds;

@@ -12,7 +12,7 @@ sub new {
         nanSteps => undef,          # unknown_datapoints
     };
 
-    ($as->{accumValue}, $as->{nanSteps}, $as->{rest}) = unpack($packstring, $input);
+    ($as->{accumValue}, $as->{nanSteps}, $as->{leftover}) = unpack($packstring, $input);
 
     bless($as,$class);
     return $as;
