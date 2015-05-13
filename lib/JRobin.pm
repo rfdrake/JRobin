@@ -34,7 +34,7 @@ package JRobin;
 use strict;
 use warnings;
 use JRobin::Constants qw ( :all );
-use JRobin::Utils qw ( parse_double unfuck_jrd_string );
+use JRobin::Utils qw ( parse_double fix_jrd_string );
 
 
 sub get_steps {
@@ -58,7 +58,7 @@ sub parse {
         read $fh, my $buffer, -s $fh or die "Couldn't read file: $!";
 
         my $header = JRobin::Header->new($buffer);
-        die if (unfuck_jrd_string($header->{signature}) ne $JROBIN_VERSION);
+        die if (fix_jrd_string($header->{signature}) ne $JROBIN_VERSION);
         for (1..$header->{dsCount}) {
             my $ds = JRobin::Datasource->new($header->{rest});
             my $archive;

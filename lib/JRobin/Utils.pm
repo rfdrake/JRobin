@@ -6,7 +6,7 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw();
-our @EXPORT_OK = qw ( parse_double unfuck_jrd_string );
+our @EXPORT_OK = qw ( parse_double fix_jrd_string );
 
 =head2 parse_double
 
@@ -26,16 +26,16 @@ sub parse_double {
     return unpack 'd', scalar reverse pack 'a*', $_[0];
 }
 
-=head2 unfuck_jrd_string
+=head2 fix_jrd_string
 
-    my $string = unfuck_jrd_string ($string);
+    my $string = fix_jrd_string ($string);
 
 The JRD file strings have padding between their characters.  Each Letter
 has a binary zero preceeding it.  This strips those characters.
 
 =cut
 
-sub unfuck_jrd_string {
+sub fix_jrd_string {
     for(@_) {
         s/.(.)/$1/g;
         s/\s+$//;
