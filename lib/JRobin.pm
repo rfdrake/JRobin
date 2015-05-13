@@ -36,7 +36,6 @@ use warnings;
 use JRobin::Constants qw ( :all );
 use JRobin::Utils qw ( parse_double unfuck_jrd_string );
 
-my $file = shift;
 
 sub get_steps {
     my $header = shift;
@@ -54,11 +53,12 @@ sub get_start_time {
 
 sub parse {
 
+        my $file = shift;
         open my $fh, '<', $file or die "Can't open file $file: $!";
         read $fh, my $buffer, -s $fh or die "Couldn't read file: $!";
 
         my $header = JRobin::Header->new($buffer);
-        die if (JRobin::Utils::unfuck_jrd_string($header->{signature}) ne $JROBIN_VERSION);
+        die if (unfuck_jrd_string($header->{signature}) ne $JROBIN_VERSION);
         for (1..$header->{dsCount}) {
             my $ds = JRobin::Datasource->new($header->{rest});
             my $archive;
@@ -70,11 +70,10 @@ sub parse {
                 my $start = get_start_time($header->{lastUpdateTime},$steps,$archive->{rows});
                 my $x=0;
                 for(@{$archive->dump()}) {
-                    print scalar localtime($start + $steps * $x++). " ".  JRobin::Utils::parse_double($_) . "\n";
+                    print scalar localtime($start + $steps * $x++). " ".  parse_double($_) . "\n";
                 }
             }
         }
 }
 
-parse;
 

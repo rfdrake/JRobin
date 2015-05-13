@@ -6,7 +6,7 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw();
-our @EXPORT_OK = qw (  );
+our @EXPORT_OK = qw ( parse_double unfuck_jrd_string );
 
 =head2 parse_double
 
