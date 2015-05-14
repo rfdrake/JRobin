@@ -38,6 +38,7 @@ use JRobin::Utils qw ( parse_double fix_jrd_string );
 use JRobin::Header;
 use JRobin::Datasource;
 use JRobin::Archive;
+use Fcntl qw( O_RDONLY );
 
 sub new {
     my $proto = shift;
@@ -49,11 +50,10 @@ sub new {
         'header' => JRobin::Header->new($fh),
     };
     bless($self, $class);
-    die if ($self->signature) ne $JROBIN_VERSION);
-    for (1..$header->{dsCount}) {
-        my $ds = JRobin::Datasource->new($fh);
-        push(@{$self->{ds}}, $ds);
-        for (1..$header->{arcCount}) {
+    die if ($self->signature ne $JROBIN_VERSION);
+    for (1..$self->{header}->{dsCount}) {
+        push(@{$self->{ds}}, JRobin::Datasource->new($fh));
+        for (1..$self->{header}->{arcCount}) {
             push(@{$self->{archive}}, JRobin::Archive->new($fh));
         }
     }
