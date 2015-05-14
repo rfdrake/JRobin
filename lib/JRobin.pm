@@ -35,61 +35,34 @@ use strict;
 use warnings;
 use JRobin::Constants qw ( :all );
 use JRobin::Utils qw ( parse_double fix_jrd_string );
+use JRobin::Header;
+use JRobin::Datasource;
+use JRobin::Archive;
 
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $file = shift;
-    open my $fh, '<', $file or die "Can't open file $file: $!";
-    read $fh, my $buffer, -s $fh or die "Couldn't read file: $!";
+    sysopen my $fh, $file, O_RDONLY or die "Can't open file $file: $!";
 
     my $self = {
-       buffer => $buffer,
+        'header' => JRobin::Header->new($fh),
     };
     bless($self, $class);
-    my $header = JRobin::Header->new($buffer);
-    $self->leftover($header->{leftover});
-    die if (fix_jrd_string($header->{signature}) ne $JROBIN_VERSION);
+    die if ($self->signature) ne $JROBIN_VERSION);
     for (1..$header->{dsCount}) {
-        my $ds = JRobin::Datasource->new($self->leftover);
-        $self->leftover($ds->{leftover});
+        my $ds = JRobin::Datasource->new($fh);
         push(@{$self->{ds}}, $ds);
-        my $archive;
         for (1..$header->{arcCount}) {
-            $archive = JRobin::Archive->new($self->leftover);
-            $self->leftover($archive->{leftover});
-            push(@{$self->{archive}}, $archive);
+            push(@{$self->{archive}}, JRobin::Archive->new($fh));
         }
     }
     return $self;
 }
 
-=head2 leftover
-
-    my $leftover = $self->leftover;
-
-This is a storage area for the "remaining" parts of the buffer each time we
-remove some of the data via pack.  I don't really like this method but it's
-working.
-
-I'm planning to move to sysread/sysopen/seek rather than reading it all into a
-buffer.  I wanted to optimize away the seek calls but the reality is that it's
-probably caching the entire file in memory on open and the seeks are happening
-there anyway.
-
-=cut
-
-sub leftover {
-    my $self = shift;
-    my $leftover = shift;
-    if (!defined($leftover)) {
-        return $self->{leftover};
-    } else {
-        $self->{leftover} = $leftover;
-    }
-    return $leftover;
+sub signature {
+    fix_jrd_string($_[0]->{header}->{signature});
 }
-
 
 sub get_steps {
     my $self = shift;

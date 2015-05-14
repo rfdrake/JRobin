@@ -9,9 +9,10 @@ use JRobin::Robins;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $input = shift;
+    my $fh = shift;
+    sysread $fh, my $buffer, hsize() or die "Couldn't read file: $!";
 
-    my $packstring = 'a40a8NNA*';
+    my $packstring = 'a40a8NN';
 
     my $arc = {
         consolFun => '',    # consolidation function
@@ -21,12 +22,24 @@ sub new {
     };
 
 
-    ($arc->{consolFun},$arc->{xff},$arc->{steps},$arc->{rows},$arc->{leftover}) = unpack($packstring, $input);
-    $arc->{arcState} = JRobin::ArcState->new($arc->{leftover});
-    $arc->{robins} = JRobin::Robins->new($arc->{arcState}->{leftover}, $arc->{rows});
-    $arc->{leftover} = $arc->{robins}->{leftover};
+    ($arc->{consolFun},$arc->{xff},$arc->{steps},$arc->{rows}) = unpack($packstring, $buffer);
+    $arc->{arcState} = JRobin::ArcState->new($fh);
+    $arc->{robins} = JRobin::Robins->new($fh, $arc->{rows});
     bless($arc,$class);
     return $arc;
+}
+
+=head2 hsize
+
+    my $size = hsize();
+
+Returns 56.  This is the number of bytes the JRobin Archive uses (without
+ArcState and Robins)
+
+=cut
+
+sub hsize {
+    40 + 8 + 4 + 4;
 }
 
 sub dump {
