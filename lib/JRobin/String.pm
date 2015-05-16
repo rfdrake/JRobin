@@ -1,5 +1,11 @@
 package JRobin::String;
 
+=head1 NAME
+
+JRobin::String - String object for JRD style binary strings
+
+=cut
+
 use strict;
 use warnings;
 
@@ -12,9 +18,7 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
 
-    my $self = {};
-    $self->{string} = fix_jrd_string($_[0]);
-    $self->{uncorrected_string} = $_[0];
+    my $self = [ fix_jrd_string($_[0]), $_[0] ];
 
     bless($self,$class);
     return $self;
@@ -37,13 +41,22 @@ sub fix_jrd_string {
     return $_[0];
 }
 
+=head2 value
+
+    my $string = $string->value;
+
+Returns the string value directly.  This will usually not be needed because
+overloading will take care of most access.
+
+=cut
+
 sub value {
-    $_[0]->{string};
+    $_[0]->[0];
 }
 
 
 use overload (
-    '""'    => sub { $_[0]->{string} },
+    '""'    => sub { $_[0]->value },
     'eq' => sub {
         my $a = (UNIVERSAL::isa($_[0],__PACKAGE__)) ? $_[0]->value : $_[0];
         my $b = (UNIVERSAL::isa($_[1],__PACKAGE__)) ? $_[1]->value : $_[1];

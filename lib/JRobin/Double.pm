@@ -1,5 +1,11 @@
 package JRobin::Double;
 
+=head1 NAME
+
+JRobin::Double - Object for JRobin double floating point values.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -36,12 +42,22 @@ sub parse_double {
     return unpack 'd', scalar reverse pack 'a*', $_[0];
 }
 
+=head2 value
+
+    my $double = $double->value;
+
+Returns the perl double data value that has been generated for the JRobin
+value.  This should normally not be needed because most access is done through
+overloaded methods, but it's available if you need to access it directly.
+
+=cut
 
 sub value {
     $_[0]->[0];
 }
 
-sub realize {
+# turn all objects into values before comparison
+sub _realize {
     my $a = (UNIVERSAL::isa($_[0],__PACKAGE__)) ? $_[0]->value : $_[0];
     my $b = (UNIVERSAL::isa($_[1],__PACKAGE__)) ? $_[1]->value : $_[1];
     return ($a, $b);
@@ -49,19 +65,19 @@ sub realize {
 
 use overload (
     '""'    => sub { $_[0]->value },
-    '==' => sub { my ($a, $b) = &realize; $a eq $b ? 1 : 0; },
-    '!=' => sub { my ($a, $b) = &realize; $a ne $b ? 1 : 0; },
-    'eq' => sub { my ($a, $b) = &realize; $a eq $b ? 1 : 0; },
-    'ne' => sub { my ($a, $b) = &realize; $a ne $b ? 1 : 0; },
-    '>'  => sub { my ($a, $b) = &realize; $a > $b ? 1 : 0; },
-    '<'  => sub { my ($a, $b) = &realize; $a < $b ? 1 : 0; },
-    '<=' => sub { my ($a, $b) = &realize; $a <= $b ? 1 : 0; },
-    '>=' => sub { my ($a, $b) = &realize; $a >= $b ? 1 : 0; },
-    '+' => sub { my ($a, $b) = &realize; $a + $b; },
-    '-' => sub { my ($a, $b) = &realize; $a - $b; },
-    '*' => sub { my ($a, $b) = &realize; $a * $b; },
-    '/' => sub { my ($a, $b) = &realize; $a / $b; },
-    '%' => sub { my ($a, $b) = &realize; $a % $b; },
+    '==' => sub { my ($a, $b) = &_realize; $a eq $b ? 1 : 0; },
+    '!=' => sub { my ($a, $b) = &_realize; $a ne $b ? 1 : 0; },
+    'eq' => sub { my ($a, $b) = &_realize; $a eq $b ? 1 : 0; },
+    'ne' => sub { my ($a, $b) = &_realize; $a ne $b ? 1 : 0; },
+    '>'  => sub { my ($a, $b) = &_realize; $a > $b ? 1 : 0; },
+    '<'  => sub { my ($a, $b) = &_realize; $a < $b ? 1 : 0; },
+    '<=' => sub { my ($a, $b) = &_realize; $a <= $b ? 1 : 0; },
+    '>=' => sub { my ($a, $b) = &_realize; $a >= $b ? 1 : 0; },
+    '+' => sub { my ($a, $b) = &_realize; $a + $b; },
+    '-' => sub { my ($a, $b) = &_realize; $a - $b; },
+    '*' => sub { my ($a, $b) = &_realize; $a * $b; },
+    '/' => sub { my ($a, $b) = &_realize; $a / $b; },
+    '%' => sub { my ($a, $b) = &_realize; $a % $b; },
 );
 
 
