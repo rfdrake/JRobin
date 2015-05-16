@@ -1,11 +1,12 @@
 use lib qw(lib);
 use Test::More;
-plan tests => 8;
+plan tests => 9;
 use_ok('JRobin');
 use_ok('JRobin::Archive');
 use_ok('JRobin::ArcState');
 use_ok('JRobin::Constants');
 use_ok('JRobin::Datasource');
+use_ok('JRobin::Double');
 use_ok('JRobin::Header');
 use_ok('JRobin::Robins');
-use_ok('JRobin::Utils');
+use_ok('JRobin::String');

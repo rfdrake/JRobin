@@ -1,5 +1,7 @@
 package JRobin::Robins;
 
+use JRobin::Double;
+
 use strict;
 use warnings;
 
@@ -19,6 +21,7 @@ sub new {
         rows => $rows,
     };
     ($r->{ptr}, @{$r->{values}}) = unpack($packstring, $buffer);
+    @{$r->{values}} = map { JRobin::Double->new($_); } @{$r->{values}};
 
     bless($r,$class);
     return $r;

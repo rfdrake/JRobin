@@ -34,11 +34,12 @@ package JRobin;
 use strict;
 use warnings;
 use JRobin::Constants qw ( :all );
-use JRobin::Utils qw ( parse_double fix_jrd_string );
 use JRobin::Header;
 use JRobin::Datasource;
 use JRobin::Archive;
 use Fcntl qw( O_RDONLY );
+
+our $AUTOLOAD;
 
 sub new {
     my $proto = shift;
@@ -50,7 +51,7 @@ sub new {
         'header' => JRobin::Header->new($fh),
     };
     bless($self, $class);
-    die if ($self->signature ne $JROBIN_VERSION);
+    die if ($self->{header}->{signature} ne $JROBIN_VERSION);
     for (1..$self->{header}->{dsCount}) {
         push(@{$self->{ds}}, JRobin::Datasource->new($fh));
         for (1..$self->{header}->{arcCount}) {
@@ -60,8 +61,16 @@ sub new {
     return $self;
 }
 
-sub signature {
-    fix_jrd_string($_[0]->{header}->{signature});
+sub AUTOLOAD {
+    my $self = shift;
+
+    my ($type) = ($AUTOLOAD =~ m/::(\w+)$/);
+
+    if (defined($self->{$type})) {
+        return $self->{$type};
+    } else {
+        die "Bad argument for ". __PACKAGE__ ." --- $AUTOLOAD\n";
+    }
 }
 
 sub get_steps {
@@ -71,12 +80,15 @@ sub get_steps {
 }
 
 sub get_start_time {
-    my $lastUpdateTime = shift;
+    my $self = shift;
+    my $update = $self->header->lastUpdateTime;
     my $step = shift;
     my $numrows = shift;
 
-    return ($lastUpdateTime - $lastUpdateTime % $step) - ($numrows - 1) * $step;
+    return ($update - $update % $step) - ($numrows - 1) * $step;
 }
+
+
 
 =head2 dump_archive
 
@@ -97,19 +109,20 @@ sub dump_archive {
     my $archive = $self->{archive}->[$values->{archive}];
 
     my $steps = $self->get_steps($values->{archive});
-    my $start = get_start_time($header->{lastUpdateTime},$steps,$archive->{rows});
+    my $start = $self->get_start_time($steps,$archive->rows);
     my $x=0;
     my $vals = [];
     for(@{$archive->dump()}) {
         my $time = $start + $steps*$x++;
         if (defined($values->{starttime}) && defined($values->{endtime})) {
             if ($time > $values->{starttime} && $time < $values->{endtime}) {
-                push(@{$vals}, { $time => parse_double($_) });
+                push(@{$vals}, { time => $time, value => $_ });
             }
         } else {
-            push(@{$vals}, { $time => parse_double($_) });
+            push(@{$vals}, { time => $time, value =>  $_ });
         }
     }
     return $vals;
 }
 
+1;
