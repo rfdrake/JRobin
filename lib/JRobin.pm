@@ -41,6 +41,16 @@ use Fcntl qw( O_RDONLY );
 
 our $AUTOLOAD;
 
+
+=head2 new
+
+    my $jrobin = JRobin->new('file.jrb');
+
+Opens and reads a JRobin database.
+
+=cut
+
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
@@ -73,11 +83,40 @@ sub AUTOLOAD {
     }
 }
 
+=head2 get_steps
+
+    my $steps = $jrobin->get_steps(<archive>);
+
+This returns the number of steps for a particular archive, where steps are the
+step number in the JRobin::Header multiplied by the steps in the JRobin::Archive.
+
+=cut
+
 sub get_steps {
     my $self = shift;
     my $archive = shift;
     $self->{header}->{step} * $self->{archive}->[$archive]->{steps};
 }
+
+=head2 get_start_time
+
+    my $start_time = $jrobin->get_start_time($steps, $rows);
+
+This returns the start time for the archive.  Rather than storing each value
+as a time/value pair, the JRD database just stores the value and the
+lastUpdateTime.  That cuts down on writes size but it means that you can't miss too
+many write cycles or bad things happen that you need to correct for.
+
+Anyway, you need to calculate when a value was stored and the way you do that
+is you pick the lastUpdateTime and subtract the number of steps to whichever
+value you're looking at.  Usually we're interested in the first record so we
+want the start time and this is how we get it.
+
+The formula is this:
+
+    (lastUpdateTime - lastUpdateTime % step) - (rows - 1) * step
+
+=cut
 
 sub get_start_time {
     my $self = shift;
@@ -92,14 +131,14 @@ sub get_start_time {
 
 =head2 dump_archive
 
-    my @reply = $self->dump_archive( { 'starttime' => timestamp, 'endtime' => timestamp, 'archive' => 0 } );
+    my @reply = $jrobin->dump_archive( { 'starttime' => timestamp, 'endtime' => timestamp, 'archive' => 0 } );
 
 Generates a dump of the archive.  starttime and endtime are optional but can
 be used to specify a timeperiod for graphing different intervals.
 
-We should improve error reporting/handling here.
-
 =cut
+
+# we should improve error handling/reporting here.
 
 sub dump_archive {
     my $self = shift;
