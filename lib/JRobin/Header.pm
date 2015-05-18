@@ -10,8 +10,6 @@ our $AUTOLOAD;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $fh = shift;
-    sysread $fh, my $buffer, hsize() or die "Couldn't read file: $!";
 
     my $h = {
         signature => '',
@@ -21,7 +19,7 @@ sub new {
         arcCount => '',
     };
 
-    my @header = unpack("a40Q>NNQ>", $buffer);
+    my @header = @_;
     $h->{signature} = JRobin::String->new($header[0]);
     $h->{step} = $header[1];
     $h->{dsCount} = $header[2];
@@ -33,17 +31,15 @@ sub new {
     return $h;
 }
 
-=head2 hsize
+=head2 packstring
 
-    my $size = hsize();
+    my $packstring = packstring();
 
-Returns 64.  This is the number of bytes the JRobin Header uses.
+Returns the string used to decode the Header.
 
 =cut
 
-sub hsize {
-    40 + 8 + 4 + 4 + 8;
-}
+sub packstring { 'a40Q>NNQ>'; }
 
 sub AUTOLOAD {
     my $self = shift;

@@ -1,7 +1,5 @@
 package JRobin::Constants;
 
-# these aren't currently used, but I included them for documentation and
-# convienence.
 use strict;
 use warnings;
 

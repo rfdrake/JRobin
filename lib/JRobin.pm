@@ -39,6 +39,9 @@ use JRobin::Datasource;
 use JRobin::Archive;
 use Fcntl qw( O_RDONLY );
 
+use 5.012;
+use feature "state";
+
 our $AUTOLOAD;
 
 
@@ -56,11 +59,13 @@ sub new {
     my $class = ref($proto) || $proto;
     my $file = shift;
     sysopen my $fh, $file, O_RDONLY or die "Can't open file $file: $!";
+    sysread $fh, my $buffer, 64 or die "Couldn't read file: $!";
 
     my $self = {
-        'header' => JRobin::Header->new($fh),
+        'header' => JRobin::Header->new(_unpack(JRobin::Header->packstring, $buffer)),
     };
     bless($self, $class);
+
     die if ($self->{header}->{signature} ne $JROBIN_VERSION);
     for (1..$self->{header}->{dsCount}) {
         push(@{$self->{ds}}, JRobin::Datasource->new($fh));
@@ -82,6 +87,39 @@ sub AUTOLOAD {
         die "Bad argument for ". __PACKAGE__ ." --- $AUTOLOAD\n";
     }
 }
+
+
+# This handles the unpack command and returns the values to be passed into the
+# sub as an array.  This keeps an internal offset
+sub _unpack {
+    my $string = shift;
+    my $buffer = shift;
+    state $offset = 0;
+    if ($string eq '' && $offset < length $buffer) {
+        warn "Parse incomplete.  offset = $offset.  Buffer length = ". length $buffer;
+        return;
+    }
+    my $size = _size($string);
+    my $tempstr = "x$offset$string";
+    $offset += $size;
+    return unpack($tempstr, $buffer);
+}
+
+# given a packstring, break it down by types and find the size of each
+# element.  For instance, 'N' is a 4 byte long.  'a8' is 8 bytes.
+sub _size {
+    my $string = shift;
+    my $size = 0;
+
+    while (my ($i, $type) = each @$RRD_PACK_TYPES) {
+        my $count = () = $string =~ /$type/g;
+        $size += $count * $RRD_PRIM_SIZES->[$i];
+    }
+
+    return $size;
+}
+
+
 
 =head2 get_steps
 

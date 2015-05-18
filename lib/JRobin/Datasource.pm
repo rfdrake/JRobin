@@ -12,9 +12,7 @@ sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
     my $fh = shift;
-    sysread $fh, my $buffer, hsize() or die "Couldn't read file: $!";
-
-    my $packstring = 'a40a40Q>a8a8a8a8Q>';
+    sysread $fh, my $buffer, size() or die "Couldn't read file: $!";
 
     my $ds = {
         raw => [],
@@ -28,7 +26,7 @@ sub new {
         nanSeconds => '',
     };
 
-    @{$ds->{raw}} = unpack($packstring, $buffer);
+    @{$ds->{raw}} = unpack(packstring(), $buffer);
     $ds->{dsName} = JRobin::String->new($ds->{raw}->[0]);
     $ds->{dsType} = JRobin::String->new($ds->{raw}->[1]);
     $ds->{heartbeat} = $ds->{raw}->[2];
@@ -43,15 +41,28 @@ sub new {
     return $ds;
 }
 
-=head2 hsize
+=head2 packstring
 
-    my $size = hsize();
+    my $packstring = packstring();
+
+Returns the string used to decode the Datasource.
+
+=cut
+
+sub packstring {
+    'a40a40Q>a8a8a8a8Q>';
+
+}
+
+=head2 size
+
+    my $size = size();
 
 Returns 128.  This is the number of bytes the JRobin Datasource uses.
 
 =cut
 
-sub hsize {
+sub size {
     40 + 40 + 8 + 8 + 8 + 8 + 8 + 8;
 }
 

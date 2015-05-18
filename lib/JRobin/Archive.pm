@@ -16,8 +16,6 @@ sub new {
     my $fh = shift;
     sysread $fh, my $buffer, hsize() or die "Couldn't read file: $!";
 
-    my $packstring = 'a40a8NN';
-
     my $arc = {
         raw => [],
         consolFun => '',    # consolidation function
@@ -26,7 +24,7 @@ sub new {
         rows => '',
     };
 
-    @{$arc->{raw}} = unpack($packstring, $buffer);
+    @{$arc->{raw}} = unpack(packstring(), $buffer);
     $arc->{consolFun} = JRobin::String->new($arc->{raw}->[0]);
     $arc->{xff} = JRobin::Double->new($arc->{raw}->[1]);
     $arc->{steps} = $arc->{raw}->[2];
@@ -37,18 +35,17 @@ sub new {
     return $arc;
 }
 
-=head2 hsize
+=head2 packstring
 
-    my $size = hsize();
+    my $packstring = packstring();
 
-Returns 56.  This is the number of bytes the JRobin Archive uses (without
-ArcState and Robins)
+Returns the string used to decode the Archive header.
 
 =cut
 
-sub hsize {
-    40 + 8 + 4 + 4;
-}
+sub packstring { 'a40a8NN'; }
+
+sub hsize { 40 + 8 + 4 + 4; }
 
 sub dump {
     my $self = shift;
