@@ -4,11 +4,11 @@ JRobin - Access JRD files
 
 =head1 VERSION
 
-0.201501
+0.201502
 
 =cut
 
-our $VERSION = eval '0.201501';
+our $VERSION = eval '0.201502';
 
 =head1 SYNOPSIS
 
