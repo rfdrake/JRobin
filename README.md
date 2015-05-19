@@ -7,17 +7,11 @@ library to do custom charts.
 
 # Limitations
 
-## Currently passes filehandle around
+## The documentation isn't the best
 
-It used to use a screwed up method of passing the "remaining" bits of the
-buffer around.  I decided that was dumb and rewrote it to just pass the
-filehandle and read what bytes were needed at each place.
-
-This makes more sense, but then I realized that if the JRobin source isn't a
-file (filehandle) then you can't use this.
-
-So another rewrite is needed with something better, but right now it does the
-right thing for files.
+It's a complete afterthought.  I've tried to expand it and keep it correct but
+I know there are gaps where I just left out how things work.  Reading the
+source is pretty much a requirement to figure out how to use it.
 
 ## Is currently read-only
 

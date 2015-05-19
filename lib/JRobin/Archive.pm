@@ -13,24 +13,21 @@ use JRobin::String;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $fh = shift;
-    sysread $fh, my $buffer, hsize() or die "Couldn't read file: $!";
+    my $u = shift;
 
     my $arc = {
-        raw => [],
         consolFun => '',    # consolidation function
         xff => '',          # archive X-files factor (between 0 and 1)
         steps => '',        # pdp_per_row in XML.  This * $step = time between rows
         rows => '',
     };
 
-    @{$arc->{raw}} = unpack(packstring(), $buffer);
-    $arc->{consolFun} = JRobin::String->new($arc->{raw}->[0]);
-    $arc->{xff} = JRobin::Double->new($arc->{raw}->[1]);
-    $arc->{steps} = $arc->{raw}->[2];
-    $arc->{rows} = $arc->{raw}->[3];
-    $arc->{arcState} = JRobin::ArcState->new($fh);
-    $arc->{robins} = JRobin::Robins->new($fh, $arc->{rows});
+    $arc->{consolFun} = JRobin::String->new($_[0]);
+    $arc->{xff} = JRobin::Double->new($_[1]);
+    $arc->{steps} = $_[2];
+    $arc->{rows} = $_[3];
+    $arc->{arcState} = JRobin::ArcState->new($u->unpack(JRobin::ArcState->packstring));
+    $arc->{robins} = JRobin::Robins->new($u->unpack(JRobin::Robins::packstring($arc->{rows})));
     bless($arc,$class);
     return $arc;
 }

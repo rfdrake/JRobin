@@ -19,12 +19,11 @@ sub new {
         arcCount => '',
     };
 
-    my @header = @_;
-    $h->{signature} = JRobin::String->new($header[0]);
-    $h->{step} = $header[1];
-    $h->{dsCount} = $header[2];
-    $h->{arcCount} = $header[3];
-    $h->{lastUpdateTime} = $header[4];
+    $h->{signature} = JRobin::String->new($_[0]);
+    $h->{step} = $_[1];
+    $h->{dsCount} = $_[2];
+    $h->{arcCount} = $_[3];
+    $h->{lastUpdateTime} = $_[4];
 
 
     bless($h,$class);

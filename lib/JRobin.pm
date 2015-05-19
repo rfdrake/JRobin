@@ -37,10 +37,7 @@ use JRobin::Constants qw ( :all );
 use JRobin::Header;
 use JRobin::Datasource;
 use JRobin::Archive;
-use Fcntl qw( O_RDONLY );
-
-use 5.012;
-use feature "state";
+use JRobin::Unpack;
 
 our $AUTOLOAD;
 
@@ -48,8 +45,12 @@ our $AUTOLOAD;
 =head2 new
 
     my $jrobin = JRobin->new('file.jrb');
+    my $jrobin = JRobin->new({ 'file' => 'file.jrb' });
+    my $jrobin = JRobin->new({ 'fh' => $fh });
+    my $jrobin = JRobin->new({ 'buffer' => $string });
 
-Opens and reads a JRobin database.
+
+Parses a JRobin Database into memory.
 
 =cut
 
@@ -57,22 +58,40 @@ Opens and reads a JRobin database.
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $file = shift;
-    sysopen my $fh, $file, O_RDONLY or die "Can't open file $file: $!";
-    sysread $fh, my $buffer, 64 or die "Couldn't read file: $!";
+    my $input = shift;
+    my $buffer;
+    if (ref($input) eq 'HASH') {
+        if (defined($input->{'file'})) {
+            open my $fh, '<', $file or die "Can't open file $file: $!";
+            read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
+            close $fh;
+        } elsif (defined($input->{'fh'})) {
+            read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
+        } elsif (defined($input->{'buffer'})) {
+            $buffer = $input->{'buffer'};
+        } else {
+            die "Invalid arguments specified for $class";
+        }
+    } else {
+        $buffer = $input;
+    }
+
+    my $u = JRobin::Unpack->new($buffer);
 
     my $self = {
-        'header' => JRobin::Header->new(_unpack(JRobin::Header->packstring, $buffer)),
+        'header' => JRobin::Header->new($u->unpack(JRobin::Header->packstring)),
     };
     bless($self, $class);
-
     die if ($self->{header}->{signature} ne $JROBIN_VERSION);
+
     for (1..$self->{header}->{dsCount}) {
-        push(@{$self->{ds}}, JRobin::Datasource->new($fh));
+        my $ds = JRobin::Datasource->new($u->unpack(JRobin::Datasource->packstring));
+        push(@{$self->{ds}}, $ds);
         for (1..$self->{header}->{arcCount}) {
-            push(@{$self->{archive}}, JRobin::Archive->new($fh));
+            push(@{$ds->{archive}}, JRobin::Archive->new($u, $u->unpack(JRobin::Archive->packstring)));
         }
     }
+    $u->finish(1);
     return $self;
 }
 
@@ -88,39 +107,6 @@ sub AUTOLOAD {
     }
 }
 
-
-# This handles the unpack command and returns the values to be passed into the
-# sub as an array.  This keeps an internal offset
-sub _unpack {
-    my $string = shift;
-    my $buffer = shift;
-    state $offset = 0;
-    if ($string eq '' && $offset < length $buffer) {
-        warn "Parse incomplete.  offset = $offset.  Buffer length = ". length $buffer;
-        return;
-    }
-    my $size = _size($string);
-    my $tempstr = "x$offset$string";
-    $offset += $size;
-    return unpack($tempstr, $buffer);
-}
-
-# given a packstring, break it down by types and find the size of each
-# element.  For instance, 'N' is a 4 byte long.  'a8' is 8 bytes.
-sub _size {
-    my $string = shift;
-    my $size = 0;
-
-    while (my ($i, $type) = each @$RRD_PACK_TYPES) {
-        my $count = () = $string =~ /$type/g;
-        $size += $count * $RRD_PRIM_SIZES->[$i];
-    }
-
-    return $size;
-}
-
-
-
 =head2 get_steps
 
     my $steps = $jrobin->get_steps(<archive>);
@@ -133,7 +119,8 @@ step number in the JRobin::Header multiplied by the steps in the JRobin::Archive
 sub get_steps {
     my $self = shift;
     my $archive = shift;
-    $self->{header}->{step} * $self->{archive}->[$archive]->{steps};
+    my $datasource = shift;
+    $self->{header}->{step} * $self->ds->[$datasource]->{archive}->[$archive]->{steps};
 }
 
 =head2 get_start_time
@@ -169,10 +156,12 @@ sub get_start_time {
 
 =head2 dump_archive
 
-    my @reply = $jrobin->dump_archive( { 'starttime' => timestamp, 'endtime' => timestamp, 'archive' => 0 } );
+    my $reply = $jrobin->dump_archive( { 'starttime' => timestamp, 'endtime' => timestamp, 'archive' => 0, 'datasource' => 0 } );
 
-Generates a dump of the archive.  starttime and endtime are optional but can
-be used to specify a timeperiod for graphing different intervals.
+Returns an arrayref dump of the archive.  All the values are currently optional.
+Datasource and archive default to zero, the first archive/datasource in the
+file.  If starttime and endtime are unspecified then all the values are
+returned in that archive.
 
 =cut
 
@@ -182,10 +171,12 @@ sub dump_archive {
     my $self = shift;
     my $values = shift;
     my $header = $self->{header};
-    return -1 if !defined($values->{archive} || $values->{archive} > $header->{arcCount});
-    my $archive = $self->{archive}->[$values->{archive}];
+    $values->{datasource} ||= 0;
+    $values->{archive} ||= 0;
+    return -1 if ($values->{archive} > $header->{arcCount} || $values->{datasource} -> $header->{dsCount});
+    my $archive = $self->ds->[$values->{datasource}]->{archive}->[$values->{archive}];
 
-    my $steps = $self->get_steps($values->{archive});
+    my $steps = $self->get_steps($values->{archive}, $values->{datasource});
     my $start = $self->get_start_time($steps,$archive->rows);
     my $x=0;
     my $vals = [];

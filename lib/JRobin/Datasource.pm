@@ -11,11 +11,8 @@ use warnings;
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
-    my $fh = shift;
-    sysread $fh, my $buffer, size() or die "Couldn't read file: $!";
 
     my $ds = {
-        raw => [],
         dsName => '',
         dsType => '',
         heartbeat => '',
@@ -26,15 +23,14 @@ sub new {
         nanSeconds => '',
     };
 
-    @{$ds->{raw}} = unpack(packstring(), $buffer);
-    $ds->{dsName} = JRobin::String->new($ds->{raw}->[0]);
-    $ds->{dsType} = JRobin::String->new($ds->{raw}->[1]);
-    $ds->{heartbeat} = $ds->{raw}->[2];
-    $ds->{minValue} = JRobin::Double->new($ds->{raw}->[3]);
-    $ds->{maxValue} = JRobin::Double->new($ds->{raw}->[4]);
-    $ds->{lastValue} = JRobin::Double->new($ds->{raw}->[5]);
-    $ds->{accumValue} = JRobin::Double->new($ds->{raw}->[6]);
-    $ds->{nanSeconds} = $ds->{raw}->[7];
+    $ds->{dsName} = JRobin::String->new($_[0]);
+    $ds->{dsType} = JRobin::String->new($_[1]);
+    $ds->{heartbeat} = $_[2];
+    $ds->{minValue} = JRobin::Double->new($_[3]);
+    $ds->{maxValue} = JRobin::Double->new($_[4]);
+    $ds->{lastValue} = JRobin::Double->new($_[5]);
+    $ds->{accumValue} = JRobin::Double->new($_[6]);
+    $ds->{nanSeconds} = $_[7];
 
 
     bless($ds,$class);
@@ -49,22 +45,8 @@ Returns the string used to decode the Datasource.
 
 =cut
 
-sub packstring {
-    'a40a40Q>a8a8a8a8Q>';
+sub packstring { 'a40a40Q>a8a8a8a8Q>'; }
 
-}
-
-=head2 size
-
-    my $size = size();
-
-Returns 128.  This is the number of bytes the JRobin Datasource uses.
-
-=cut
-
-sub size {
-    40 + 40 + 8 + 8 + 8 + 8 + 8 + 8;
-}
 
 # make a generic function to return values so I don't have to boilerplate all
 # of them.

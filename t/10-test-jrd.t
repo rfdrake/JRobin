@@ -15,18 +15,19 @@ is($jrobin->{ds}->[0]->dsType, 'COUNTER', 'is dsType correct?');
 is($jrobin->{ds}->[0]->heartbeat, '600', 'is heartbeat correct?');
 is($jrobin->{ds}->[0]->minValue, nan, 'is minValue correct?');
 is($jrobin->{ds}->[0]->lastValue, '108100581', 'is lastValue correct?');
-is($jrobin->{archive}->[0]->consolFun, 'AVERAGE', 'is consolFun correct?');
-is($jrobin->{archive}->[0]->xff, 0.5, 'is xff correct?');
-is($jrobin->{archive}->[0]->steps, 1, 'is steps correct?');
-is($jrobin->{archive}->[0]->rows, 2016, 'is rows correct?');
-is($jrobin->{archive}->[0]->arcState->accumValue, nan, 'is accumValue correct?');
-is($jrobin->{archive}->[0]->arcState->nanSteps, 0, 'is nanSteps correct?');
-my $ptr = $jrobin->{archive}->[0]->robins->{ptr};
+my $archive = $jrobin->ds->[0]->archive->[0];
+is($archive->consolFun, 'AVERAGE', 'is consolFun correct?');
+is($archive->xff, 0.5, 'is xff correct?');
+is($archive->steps, 1, 'is steps correct?');
+is($archive->rows, 2016, 'is rows correct?');
+is($archive->arcState->accumValue, nan, 'is accumValue correct?');
+is($archive->arcState->nanSteps, 0, 'is nanSteps correct?');
+my $ptr = $archive->robins->{ptr};
 
 is($ptr, 1495, 'is ptr correct?');
-is($jrobin->{archive}->[0]->robins->{values}->[$ptr], '241.096348491538', 'is first value correct?');
-my $steps = $jrobin->get_steps(0);
+is($archive->robins->{values}->[$ptr], '241.096348491538', 'is first value correct?');
+my $steps = $jrobin->get_steps(0, 0);
 
-my $start_time = $jrobin->get_start_time($steps, $jrobin->archive->[0]->rows);
+my $start_time = $jrobin->get_start_time($steps, $archive->rows);
 is($start_time, 1430944500, 'is start time correct?');
 
