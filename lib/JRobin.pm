@@ -62,10 +62,12 @@ sub new {
     my $buffer;
     if (ref($input) eq 'HASH') {
         if (defined($input->{'file'})) {
+            my $file = $input->{'file'};
             open my $fh, '<', $file or die "Can't open file $file: $!";
             read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
             close $fh;
         } elsif (defined($input->{'fh'})) {
+            my $fh = $input->{'fh'};
             read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
         } elsif (defined($input->{'buffer'})) {
             $buffer = $input->{'buffer'};
@@ -73,7 +75,10 @@ sub new {
             die "Invalid arguments specified for $class";
         }
     } else {
-        $buffer = $input;
+        my $file = $input;
+        open my $fh, '<', $file or die "Can't open file $file: $!";
+        read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
+        close $fh;
     }
 
     my $u = JRobin::Unpack->new($buffer);
