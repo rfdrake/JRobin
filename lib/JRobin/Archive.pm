@@ -3,8 +3,6 @@ package JRobin::Archive;
 use strict;
 use warnings;
 
-our $AUTOLOAD;
-
 use JRobin::ArcState;
 use JRobin::Robins;
 use JRobin::Double;
@@ -28,6 +26,16 @@ sub new {
     $arc->{rows} = $_[3];
     $arc->{arcState} = JRobin::ArcState->new($u->unpack(JRobin::ArcState->packstring));
     $arc->{robins} = JRobin::Robins->new($u->unpack(JRobin::Robins::packstring($arc->{rows})));
+
+    foreach my $name (keys %$arc) {
+        my $sub = sub {
+            $_[0]->{$name};
+        };
+
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$name} = $sub;
+    }
     bless($arc,$class);
     return $arc;
 }
@@ -54,20 +62,6 @@ sub dump {
         $ptr = ($ptr + 1) % $self->{rows};
     }
     return $vals;
-}
-
-# make a generic function to return values so I don't have to boilerplate all
-# of them.
-sub AUTOLOAD {
-    my $self = shift;
-
-    my ($type) = ($AUTOLOAD =~ m/::(\w+)$/);
-
-    if (defined($self->{$type})) {
-        return $self->{$type};
-    } else {
-        die "Bad argument for ". __PACKAGE__ ." --- $AUTOLOAD\n";
-    }
 }
 
 

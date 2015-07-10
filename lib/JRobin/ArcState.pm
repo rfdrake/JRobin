@@ -1,8 +1,8 @@
 package JRobin::ArcState;
 
 use JRobin::Double;
-
-our $AUTOLOAD;
+use strict;
+use warnings;
 
 sub new {
     my $proto = shift;
@@ -15,6 +15,16 @@ sub new {
 
     $as->{accumValue} = JRobin::Double->new($_[0]);
     $as->{nanSteps} = $_[1];
+
+    foreach my $name (keys %$as) {
+        my $sub = sub {
+            $_[0]->{$name};
+        };
+
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$name} = $sub;
+    }
 
     bless($as,$class);
     return $as;
@@ -29,22 +39,6 @@ Returns the string used to decode the ArcState.
 =cut
 
 sub packstring { 'a8Q>'; }
-
-# make a generic function to return values so I don't have to boilerplate all
-# of them.
-sub AUTOLOAD {
-    my $self = shift;
-
-    my ($type) = ($AUTOLOAD =~ m/::(\w+)$/);
-
-    if (defined($self->{$type})) {
-        return $self->{$type};
-    } else {
-        die "Bad argument for ". __PACKAGE__ ." --- $AUTOLOAD\n";
-    }
-}
-
-
 
 1;
 

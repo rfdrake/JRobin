@@ -18,7 +18,6 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw();
 our @EXPORT_OK = qw ( );
-our $AUTOLOAD;
 
 sub new {
     my $proto = shift;
@@ -30,6 +29,16 @@ sub new {
     };
 
     $self->{length} = length $self->{buffer};
+
+    foreach my $name (keys %$self) {
+        my $sub = sub {
+            $_[0]->{$name};
+        };
+
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$name} = $sub;
+    }
 
     bless($self,$class);
     return $self;
@@ -96,19 +105,6 @@ sub size {
 
     return $size;
 }
-
-sub AUTOLOAD {
-    my $self = shift;
-
-    my ($type) = ($AUTOLOAD =~ m/::(\w+)$/);
-
-    if (defined($self->{$type})) {
-        return $self->{$type};
-    } else {
-        die "Bad argument for ". __PACKAGE__ ." --- $AUTOLOAD\n";
-    }
-}
-
 
 1;
 

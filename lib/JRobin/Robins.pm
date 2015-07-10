@@ -16,6 +16,17 @@ sub new {
     ($r->{ptr}, @{$r->{values}}) = @_;
     @{$r->{values}} = map { JRobin::Double->new($_); } @{$r->{values}};
 
+    foreach my $name (keys %$r) {
+        my $sub = sub {
+            $_[0]->{$name};
+        };
+
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$name} = $sub;
+    }
+
+
     bless($r,$class);
     return $r;
 }

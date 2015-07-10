@@ -5,8 +5,6 @@ use JRobin::String;
 use strict;
 use warnings;
 
-our $AUTOLOAD;
-
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
@@ -25,6 +23,15 @@ sub new {
     $h->{arcCount} = $_[3];
     $h->{lastUpdateTime} = $_[4];
 
+    foreach my $name (keys %$h) {
+        my $sub = sub {
+            $_[0]->{$name};
+        };
+
+        no strict 'refs';
+        no warnings 'redefine';
+        *{$name} = $sub;
+    }
 
     bless($h,$class);
     return $h;
@@ -39,19 +46,6 @@ Returns the string used to decode the Header.
 =cut
 
 sub packstring { 'a40Q>NNQ>'; }
-
-sub AUTOLOAD {
-    my $self = shift;
-
-    my ($type) = ($AUTOLOAD =~ m/::(\w+)$/);
-
-    if (defined($self->{$type})) {
-        return $self->{$type};
-    } else {
-        die "Bad argument for ". __PACKAGE__ ." --- $AUTOLOAD\n";
-    }
-}
-
 
 1;
 
