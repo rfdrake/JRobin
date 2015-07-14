@@ -50,7 +50,9 @@ our $AUTOLOAD;
     my $jrobin = JRobin->new({ 'buffer' => $string });
 
 
-Parses a JRobin Database into memory.
+Parses a JRobin Database into memory.  Depending on how the database is passed
+to us, we store the file/fh/buffer in the new object for reference, but don't
+really make use of it again.  This may change if we enable write support.
 
 =cut
 
@@ -60,14 +62,17 @@ sub new {
     my $class = ref($proto) || $proto;
     my $input = shift;
     my $buffer;
+    my $self = {};
     if (ref($input) eq 'HASH') {
         if (defined($input->{'file'})) {
             my $file = $input->{'file'};
+            $self->{file} = $file;
             open my $fh, '<', $file or die "Can't open file $file: $!";
             read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
             close $fh;
         } elsif (defined($input->{'fh'})) {
             my $fh = $input->{'fh'};
+            $self->{fh} = $fh;
             read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
         } elsif (defined($input->{'buffer'})) {
             $buffer = $input->{'buffer'};
@@ -76,17 +81,33 @@ sub new {
         }
     } else {
         my $file = $input;
+        $self->{file} = $file;
         open my $fh, '<', $file or die "Can't open file $file: $!";
         read $fh, $buffer, -s $fh or die "Couldn't read file: $!";
         close $fh;
     }
+    $self->{buffer}=$buffer;
 
-    my $u = JRobin::Unpack->new($buffer);
-
-    my $self = {
-        'header' => JRobin::Header->new($u->unpack(JRobin::Header->packstring)),
-    };
     bless($self, $class);
+    return $self->_load;
+}
+
+=head2 _load
+
+    my $robin = $self->_load;
+
+This loads the JRobin file from the buffer in $self->{buffer}.  The buffer is
+handed over to Unpack and not used again.  This subroutine is automatically
+called by new() and shouldn't be needed unless you do something weird.
+
+=cut
+
+sub _load {
+    my $self = shift;
+    my $u = JRobin::Unpack->new($self->{buffer});
+
+    $self->{'header'} = JRobin::Header->new($u->unpack(JRobin::Header->packstring));
+
     die if ($self->{header}->{signature} ne $JROBIN_VERSION);
 
     for (1..$self->{header}->{dsCount}) {
@@ -97,6 +118,8 @@ sub new {
         }
     }
     $u->finish(1);
+
+
     return $self;
 }
 
