@@ -13,7 +13,7 @@ It's a complete afterthought.  I've tried to expand it and keep it correct but
 I know there are gaps where I just left out how things work.  Reading the
 source is pretty much a requirement to figure out how to use it.
 
-## Is currently read-only
+## Currently read-only
 
 I don't think it would be hard to add write provisions to the code, but it
 wasn't something I needed, nor am I sure it would be a great idea.  You run
