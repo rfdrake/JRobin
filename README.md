@@ -1,4 +1,5 @@
-# JRobin - Access to JRobin JRD files via Perl Objects [BUILD]
+# JRobin - Access to JRobin JRD files via Perl Objects ![BUILD](https://travis-ci.org/rfdrake/JRobin.svg)
+
 
 This provides users with an easier way to access JRobin files if they aren't
 starting with Java.  The most likely usage would be to read the JRobin
@@ -35,6 +36,4 @@ a shot.
 And maybe OpenNMS hasn't gotten around to implementing this yet.  Or maybe
 you're running an older release and you really want this kind of feature but
 can't upgrade to latest scary-version yet. :)
-
-[BUILD]:     https://travis-ci.org/rfdrake/JRobin.svg
 
