@@ -14,6 +14,15 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw();
 our @EXPORT_OK = qw ( parse_double );
 
+=head2 new
+
+    my $double = JRobin::Double->new($bytes);
+
+Returns a JRobin::Double object, given an IEEE 754 double 64 formatted byte
+string.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;

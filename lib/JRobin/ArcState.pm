@@ -4,6 +4,14 @@ use JRobin::Double;
 use strict;
 use warnings;
 
+=head2 new
+
+    my $as = JRobin::ArcState->new($accumValue, $numSteps);
+
+Makes a new arcState Object.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;

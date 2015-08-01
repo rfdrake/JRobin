@@ -14,6 +14,14 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw();
 our @EXPORT_OK = qw ( fix_jrd_string );
 
+=head2 new
+
+    my $string = JRobin::String->new($string);
+
+Returns a JRobin::String object, given a JRD file raw string.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;

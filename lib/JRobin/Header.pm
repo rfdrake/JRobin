@@ -5,6 +5,14 @@ use JRobin::String;
 use strict;
 use warnings;
 
+=head2 new
+
+    my $header = JRobin::Header->new($signature, $lastUpdateTime, $step, $dsCount, $arcCount);
+
+Returns a JRobin::Header object.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
