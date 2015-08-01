@@ -1,9 +1,16 @@
 package JRobin::Robins;
 
 use JRobin::Double;
-
 use strict;
 use warnings;
+
+=head2 new
+
+    my $robin = JRobin::Robins->new( $ptr, @values );
+
+Given a pointer and set of values, this creates a Robin object.
+
+=cut
 
 sub new {
     my $proto = shift;

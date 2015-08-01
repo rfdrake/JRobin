@@ -8,6 +8,14 @@ our $AUTOLOAD;
 use strict;
 use warnings;
 
+=head2 new
+
+    my $ds = JRobin::Datasource->new($dsName, $dsType, $heartbeat, $minValue, $maxValue, $lastValue, $accumValue, $nanSeconds);
+
+Returns a Datasource object.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;

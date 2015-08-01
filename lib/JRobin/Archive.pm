@@ -8,6 +8,14 @@ use JRobin::Robins;
 use JRobin::Double;
 use JRobin::String;
 
+=head2 new
+
+    my $archive = JRobin::Archive->new($consolFun, $xff, $steps, $rows);
+
+Returns an archive object.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
@@ -50,7 +58,13 @@ Returns the string used to decode the Archive header.
 
 sub packstring { 'a40a8NN'; }
 
-sub hsize { 40 + 8 + 4 + 4; }
+=head2 dump
+
+    my $valuesref = $archive->dump;
+
+Returns an array reference of the values in the archive.
+
+=cut
 
 sub dump {
     my $self = shift;

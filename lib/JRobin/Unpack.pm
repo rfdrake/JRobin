@@ -19,6 +19,14 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw();
 our @EXPORT_OK = qw ( );
 
+=head2 new
+
+    my $unpack = JRobin::Unpack->new($buffer);
+
+Returns an unpack object.  Requires a string buffer of packed values.
+
+=cut
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
