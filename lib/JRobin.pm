@@ -1,3 +1,13 @@
+package JRobin;
+
+use strict;
+use warnings;
+use JRobin::Constants qw ( :all );
+use JRobin::Header;
+use JRobin::Datasource;
+use JRobin::Archive;
+use JRobin::Unpack;
+
 =head1 NAME
 
 JRobin - Access JRD files
@@ -8,7 +18,7 @@ JRobin - Access JRD files
 
 =cut
 
-our $VERSION = eval '0.201502';
+our $VERSION = '0.201502';
 
 =head1 SYNOPSIS
 
@@ -29,18 +39,7 @@ under the same terms as Perl itself.
 
 =cut
 
-package JRobin;
-
-use strict;
-use warnings;
-use JRobin::Constants qw ( :all );
-use JRobin::Header;
-use JRobin::Datasource;
-use JRobin::Archive;
-use JRobin::Unpack;
-
 our $AUTOLOAD;
-
 
 =head2 new
 

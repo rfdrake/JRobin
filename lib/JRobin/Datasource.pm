@@ -1,12 +1,11 @@
 package JRobin::Datasource;
 
+use strict;
+use warnings;
 use JRobin::String;
 use JRobin::Double;
 
 our $AUTOLOAD;
-
-use strict;
-use warnings;
 
 =head2 new
 
