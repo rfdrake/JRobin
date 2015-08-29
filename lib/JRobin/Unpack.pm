@@ -98,7 +98,7 @@ sub unpack {
     my $size = size($string);
 
 Given a packstring, break it down by types and find the size of each
-element.  For instance, 'N' is a 4 byte long.  'a8' is 8 bytes.
+element.  For instance, 'N' is 4 bytes long.  'a8' is 8 bytes.
 
 =cut
 
