@@ -1,10 +1,9 @@
 use lib qw(lib);
 use Test::More;
-plan tests => 10;
+plan tests => 9;
 use_ok('JRobin');
 use_ok('JRobin::Archive');
 use_ok('JRobin::ArcState');
-use_ok('JRobin::Constants');
 use_ok('JRobin::Datasource');
 use_ok('JRobin::Double');
 use_ok('JRobin::Header');

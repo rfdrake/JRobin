@@ -12,8 +12,6 @@ JRobin::Unpack - Stream unpacker for the binary buffer
 use strict;
 use warnings;
 
-use JRobin::Constants qw ( :all );
-
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw();

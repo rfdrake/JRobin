@@ -2,11 +2,14 @@ package JRobin;
 
 use strict;
 use warnings;
-use JRobin::Constants qw ( :all );
 use JRobin::Header;
 use JRobin::Datasource;
 use JRobin::Archive;
 use JRobin::Unpack;
+use Const::Fast;
+
+const our $JROBIN_VERSION => 'JRobin, version 0.1';
+
 
 =head1 NAME
 
