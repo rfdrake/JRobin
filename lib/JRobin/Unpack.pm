@@ -103,15 +103,7 @@ element.  For instance, 'N' is 4 bytes long.  'a8' is 8 bytes.
 =cut
 
 sub size {
-    my $string = ref($_[0]) eq __PACKAGE__ ? $_[1] : $_[0];   # $self is optional since we don't use it
-    my $size = 0;
-
-    while (my ($i, $type) = each @$RRD_PACK_TYPES) {
-        my $count = () = $string =~ /$type/g;
-        $size += $count * $RRD_PRIM_SIZES->[$i];
-    }
-
-    return $size;
+    length pack ref($_[0]) eq __PACKAGE__ ? $_[1] : $_[0];
 }
 
 1;
