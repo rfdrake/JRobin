@@ -199,12 +199,13 @@ returned in that archive.
 
 sub dump_archive {
     my $self = shift;
-    my $values = shift;
+    # accept a hashref or a hash
+    my $values = ref($_[0]) eq 'HASH' ? $_[0] : +{ @_ };
     my $header = $self->{header};
     $values->{datasource} ||= 0;
     $values->{archive} ||= 0;
-    return -1 if ($values->{archive} > $header->{arcCount} || $values->{datasource} -> $header->{dsCount});
-    my $archive = $self->ds->[$values->{datasource}]->{archive}->[$values->{archive}];
+    return -1 if ($values->{archive} > $header->{arcCount} || $values->{datasource} > $header->{dsCount});
+    my $archive = $self->ds->[$values->{datasource}]->archive->[$values->{archive}];
 
     my $steps = $self->get_steps($values->{archive}, $values->{datasource});
     my $start = $self->get_start_time($steps,$archive->rows);
