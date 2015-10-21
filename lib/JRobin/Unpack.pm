@@ -88,7 +88,7 @@ sub unpack {
     my $size = size($string);
     my $tempstr = 'x' . $self->offset . $string;
     $self->{offset} += $size;
-    return unpack($tempstr, $self->buffer);
+    return CORE::unpack($tempstr, $self->buffer);
 }
 
 =head2 size
