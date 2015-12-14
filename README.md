@@ -1,4 +1,5 @@
 # JRobin - Access to JRobin JRD files via Perl Objects ![BUILD](https://travis-ci.org/rfdrake/JRobin.svg)
+[![Coverage Status](https://coveralls.io/repos/rfdrake/JRobin/badge.svg?branch=master&service=github)](https://coveralls.io/github/rfdrake/JRobin?branch=master)
 
 
 This provides users with an easier way to access JRobin files if they aren't
