@@ -69,29 +69,5 @@ sub AUTOLOAD {
     }
 }
 
-
-=head2 dump
-
-    my $arrayref = $datasource->dump();
-
-Returns an arrayref of all the current values for the Datasource.
-
-=cut
-
-sub dump {
-    my $self = shift;
-    my $vals = [];
-
-    push(@$vals, "dsName = ". $self->{dsName});
-    push(@$vals, "dsType = ". $self->{dsType});
-    push(@$vals, "heartbeat = ". $self->{heartbeat});
-    push(@$vals, "minValue = ". $self->{minValue});
-    push(@$vals, "maxValue = ". $self->{maxValue});
-    push(@$vals, "lastValue = ". $self->{lastValue});
-    push(@$vals, "accumValue = ". $self->{accumValue});
-    push(@$vals, "nanSeconds = ". $self->{nanSeconds});
-    return $vals;
-}
-
 1;
 

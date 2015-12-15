@@ -1,24 +1,27 @@
 use lib qw(lib);
 use Test::More;
-plan tests => 13;
 use JRobin::Double;
 
-# this normally takes a packed 8 byte string but we just need to initialize it
-# for some equality tests.  The number can be anything for our purposes.
-my $double = new JRobin::Double(12345);
-my $double2 = new JRobin::Double(12345);
-my $double3 = new JRobin::Double(12344);
+my $value = '1700012331231.1';
+my $packed_double = scalar reverse pack 'a*', pack('d', $value);
 
-is($double > $double2, 0, 'greater than test of same values');
-is($double < $double2, 0, 'less than test of same values');
-is($double >= $double2, 1, 'greater than or equal test of same values');
-is($double <= $double2, 1, 'less than or equal test of same values');
-is($double == $double2, 1, 'equality test of same values');
-is($double != $double2, 0, 'not equal test of same values');
-is($double == $double3, 0, 'equality test of different values');
-is($double == 4, 0, 'equality test of value with numeric');
-is($double >= 4, 1, 'greater than or equal test of static number');
-is($double, 12345, 'value stringify overload test');
-is($double + 4, 12349, 'numerical addition test');
-is($double % 4, 1, 'modulus test');
-is($double + $double2, 24690, 'object addition test');
+my $d = JRobin::Double->new($packed_double);
+
+is("$d", '1700012331231.1', 'test overload string');
+cmp_ok($d, '==', '1700012331231.1', 'JRobin::Double ==');
+cmp_ok($d, '!=', '1', 'JRobin::Double !=');
+cmp_ok($d, '==', '1700012331231.1', 'JRobin::Double eq');
+cmp_ok($d, 'ne', '1', 'JRobin::Double ne');
+cmp_ok($d, '>', '1', 'JRobin::Double >');
+ok($d < 1700012331231.2, 'JRobin::Double <');
+ok($d <= 11700012331231.1, 'JRobin::Double <= lt');
+ok($d <= 1700012331231.1, 'JRobin::Double <= eq');
+ok($d >= 1700012331231.0, 'JRobin::Double >= gt');
+ok($d >= 1700012331231.1, 'JRobin::Double >= eq');
+is($d + 1, 1700012331232.1, 'JRobin::Double +');
+is($d - 1, 1700012331230.1, 'JRobin::Double -');
+is($d * 1, 1700012331231.1, 'JRobin::Double *');
+is($d / 5, 340002466246.22, 'JRobin::Double /');
+is($d % 300, 231, 'JRobin::Double %');
+
+done_testing();

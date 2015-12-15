@@ -25,8 +25,11 @@ Returns a JRobin::String object, given a JRD file raw string.
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
+    # fix_jrd_string will complain about modifying literal string if we pass a
+    # literal string to new.  Copy it here to fix this.
+    my $string = $_[0];
 
-    my $self = [ fix_jrd_string($_[0]), $_[0] ];
+    my $self = [ fix_jrd_string($string), $string ];
 
     bless($self,$class);
     return $self;

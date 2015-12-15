@@ -22,7 +22,7 @@ cmp_ok($archive->steps, '==', 1, 'is steps correct?');
 cmp_ok($archive->rows, '==', 2016, 'is rows correct?');
 cmp_ok($archive->arcState->accumValue, '==', nan, 'is accumValue correct?');
 cmp_ok($archive->arcState->nanSteps, '==', 0, 'is nanSteps correct?');
-my $ptr = $archive->robins->{ptr};
+my $ptr = $archive->robins->ptr;
 
 cmp_ok($ptr, '==', 1495, 'is ptr correct?');
 cmp_ok($archive->robins->{values}->[$ptr], '==', 241.096348491538, 'is first value correct?');
